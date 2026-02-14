@@ -177,10 +177,63 @@ def status_preview(limit: int = 100):
         except Exception:
             delete_list = []
 
+    # list uploaded files
+    uploaded_files = []
+    try:
+        uploaded_files = [f for f in os.listdir(UPLOAD_FOLDER) if os.path.isfile(os.path.join(UPLOAD_FOLDER, f))]
+    except Exception:
+        uploaded_files = []
+
     return JSONResponse({
         "master_preview": master_preview,
-        "delete_list": delete_list
+        "delete_list": delete_list,
+        "uploaded_files": uploaded_files
     })
+
+
+@app.post('/reset')
+def reset_server():
+    """Delete master and delete_list files and clear uploads folder."""
+    results = {"master_deleted": False, "delete_list_deleted": False, "uploads_cleared": False}
+    try:
+        if os.path.exists(MASTER_FILE):
+            os.remove(MASTER_FILE)
+            results["master_deleted"] = True
+    except Exception:
+        pass
+    try:
+        if os.path.exists(DELETE_OUTPUT_FILE):
+            os.remove(DELETE_OUTPUT_FILE)
+            results["delete_list_deleted"] = True
+    except Exception:
+        pass
+    try:
+        # remove files in uploads folder
+        for fname in os.listdir(UPLOAD_FOLDER):
+            path = os.path.join(UPLOAD_FOLDER, fname)
+            if os.path.isfile(path):
+                os.remove(path)
+        results["uploads_cleared"] = True
+    except Exception:
+        pass
+
+    return JSONResponse({"result": results})
+
+
+@app.post('/delete/master')
+def delete_master():
+    if os.path.exists(MASTER_FILE):
+        os.remove(MASTER_FILE)
+        return JSONResponse({"deleted": True})
+    return JSONResponse({"deleted": False, "error": "master_db.csv not found"}, status_code=404)
+
+
+@app.post('/delete/delete_list')
+def delete_delete_list():
+    if os.path.exists(DELETE_OUTPUT_FILE):
+        os.remove(DELETE_OUTPUT_FILE)
+        return JSONResponse({"deleted": True})
+    return JSONResponse({"deleted": False, "error": "delete_list.csv not found"}, status_code=404)
 
 
 @app.get("/download/master")
