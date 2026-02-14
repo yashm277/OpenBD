@@ -18,45 +18,50 @@ def process_dump(file_path):
         master = pd.DataFrame(columns=["email", "total_open", "dump_count", "status"])
 
     new_dump = pd.read_csv(file_path)
-
-    # Normalize column names
     new_dump.columns = [col.strip().lower() for col in new_dump.columns]
 
     if "email" not in new_dump.columns or "opens" not in new_dump.columns:
-        raise Exception("CSV must contain Email and Opens columns.")
+        raise ValueError("CSV must contain Email and Opens columns.")
 
     new_dump = new_dump[["email", "opens"]]
     new_dump.columns = ["email", "open"]
-
     new_dump["open"] = pd.to_numeric(new_dump["open"], errors="coerce").fillna(0)
 
-    for _, row in new_dump.iterrows():
-        email = row["email"]
-        open_val = row["open"]
+    # Aggregate new dump first
+    new_dump_grouped = new_dump.groupby("email").agg(
+        total_open=("open", "sum"),
+        dump_count=("open", "count")
+    ).reset_index()
 
-        if email in master["email"].values:
-            master.loc[master["email"] == email, "dump_count"] += 1
-            master.loc[master["email"] == email, "total_open"] += open_val
-        else:
-            master = pd.concat([
-                master,
-                pd.DataFrame([{
-                    "email": email,
-                    "total_open": open_val,
-                    "dump_count": 1,
-                    "status": "active"
-                }])
-            ])
+    # Merge with master
+    if not master.empty:
+        master = master.merge(
+            new_dump_grouped,
+            on="email",
+            how="outer",
+            suffixes=("_old", "_new")
+        )
 
+        master["total_open"] = master["total_open_old"].fillna(0) + master["total_open_new"].fillna(0)
+        master["dump_count"] = master["dump_count_old"].fillna(0) + master["dump_count_new"].fillna(0)
+
+        master["status"] = master["status"].fillna("active")
+
+        master = master[["email", "total_open", "dump_count", "status"]]
+    else:
+        master = new_dump_grouped
+        master["status"] = "active"
+
+    # Soft delete logic
     delete_condition = (master["dump_count"] >= 3) & (master["total_open"] == 0)
     master.loc[delete_condition, "status"] = "soft_delete"
 
     delete_list = master[master["status"] == "soft_delete"][["email"]]
+
     delete_list.to_csv(DELETE_OUTPUT_FILE, index=False)
     master.to_csv(MASTER_FILE, index=False)
 
     return len(delete_list)
-
 def apply_soft_delete(file_path):
     """Apply soft_delete status to emails from uploaded delete_list.csv"""
     if not os.path.exists(MASTER_FILE):
