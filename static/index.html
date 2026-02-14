@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>CSV Uploader - RISE</title>
+    <style>
+      body { font-family: Arial, sans-serif; max-width: 900px; margin: 24px auto; padding: 0 16px; }
+      .card { border: 1px solid #e1e1e1; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+      input[type=file] { display:block; margin-bottom:12px; }
+      button { padding:8px 12px; cursor:pointer; }
+      table { border-collapse: collapse; width:100%; margin-top:12px }
+      th, td { border:1px solid #ddd; padding:8px; text-align:left }
+      th { background:#f6f6f6 }
+      #progress { width:100%; height:10px; background:#eee; border-radius:6px; overflow:hidden }
+      #progress > div { height:100%; width:0; background:linear-gradient(90deg,#4caf50,#8bc34a) }
+      pre { background:#f6f6f6; padding:12px; border-radius:6px }
+    </style>
+  </head>
+  <body>
+    <h1>CSV Uploader</h1>
+    <div class="card">
+      <h3>Upload CSV files (multiple allowed)</h3>
+      <input id="files" type="file" multiple accept=".csv" />
+      <div>
+        <button id="uploadBtn">Upload</button>
+        <button id="refreshBtn">Refresh Status</button>
+        <a id="downloadDelete" href="/download" download><button>Download delete_list.csv</button></a>
+        <a id="downloadMaster" href="/download/master" download><button>Download master_db.csv</button></a>
+      </div>
+      <div style="margin-top:12px">
+        <div id="progress"><div></div></div>
+        <div id="statusText" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Delete List (soft_delete)</h3>
+      <pre id="deleteList">(empty)</pre>
+    </div>
+
+    <div class="card">
+      <h3>Master DB preview</h3>
+      <div id="masterTable"></div>
+    </div>
+
+    <script>
+      const filesInput = document.getElementById('files')
+      const uploadBtn = document.getElementById('uploadBtn')
+      const refreshBtn = document.getElementById('refreshBtn')
+      const progressBar = document.querySelector('#progress > div')
+      const statusText = document.getElementById('statusText')
+      const deleteListEl = document.getElementById('deleteList')
+      const masterTable = document.getElementById('masterTable')
+
+      uploadBtn.onclick = () => {
+        const files = filesInput.files
+        if (!files || files.length === 0) return alert('Choose at least one CSV file')
+
+        const form = new FormData()
+        for (let i=0;i<files.length;i++) form.append('files', files[i])
+
+        const xhr = new XMLHttpRequest()
+        xhr.open('POST','/upload')
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const pct = Math.round((e.loaded / e.total) * 100)
+            progressBar.style.width = pct + '%'
+            statusText.innerText = `Uploading... ${pct}%` 
+          }
+        }
+        xhr.onload = () => {
+          progressBar.style.width = '100%'
+          statusText.innerText = 'Upload complete. Processing on server.'
+          try {
+            const resp = JSON.parse(xhr.responseText)
+            statusText.innerText = resp.message + ' — deleted_count: ' + resp.deleted_count
+          } catch (err) { statusText.innerText = 'Upload finished.' }
+          fetchStatus()
+        }
+        xhr.onerror = () => { statusText.innerText = 'Upload failed'; }
+        xhr.send(form)
+      }
+
+      refreshBtn.onclick = fetchStatus
+
+      function fetchStatus(){
+        statusText.innerText = 'Fetching current status...'
+        fetch('/status')
+          .then(r=>r.json())
+          .then(data => {
+            statusText.innerText = 'Status loaded'
+            // delete list
+            if (data.delete_list && data.delete_list.length) {
+              deleteListEl.innerText = data.delete_list.join('\n')
+            } else deleteListEl.innerText = '(empty)'
+
+            // master preview
+            if (data.master_preview && data.master_preview.length) {
+              renderMasterTable(data.master_preview)
+            } else masterTable.innerHTML = '<em>(no master_db.csv yet)</em>'
+          })
+          .catch(err=>{ statusText.innerText = 'Failed to load status'; console.error(err) })
+      }
+
+      function renderMasterTable(rows){
+        if (!rows.length) { masterTable.innerHTML = '<em>(empty)</em>'; return }
+        const cols = Object.keys(rows[0])
+        let html = '<table><thead><tr>' + cols.map(c => '<th>'+c+'</th>').join('') + '</tr></thead><tbody>'
+        html += rows.map(r => '<tr>' + cols.map(c => '<td>' + (r[c]===null?'':r[c]) + '</td>').join('') + '</tr>').join('')
+        html += '</tbody></table>'
+        masterTable.innerHTML = html
+      }
+
+      // initial load
+      fetchStatus()
+    </script>
+  </body>
+</html>

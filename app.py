@@ -2,7 +2,8 @@ import os
 import pandas as pd
 from typing import List
 from fastapi import FastAPI, UploadFile, File
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
@@ -11,6 +12,10 @@ DELETE_OUTPUT_FILE = "delete_list.csv"
 UPLOAD_FOLDER = "uploads"
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Serve static frontend files from /static
+if not os.path.exists("static"):
+    os.makedirs("static", exist_ok=True)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 def process_multiple_dumps(file_paths: List[str]):
     """
@@ -147,22 +152,46 @@ async def upload_csv(files: List[UploadFile] = File(...)):
 
 @app.get("/")
 def homepage():
-    html = """
-    <html>
-      <head>
-        <title>Upload CSV Dumps</title>
-      </head>
-      <body>
-        <h2>Upload one or more CSV files</h2>
-        <form action="/upload" enctype="multipart/form-data" method="post">
-          <input name="files" type="file" multiple />
-          <button type="submit">Upload</button>
-        </form>
-        <p>Visit <a href="/docs">/docs</a> for the API UI.</p>
-      </body>
-    </html>
-    """
-    return HTMLResponse(content=html)
+    # Redirect to the SPA index in /static
+    return RedirectResponse(url="/static/index.html")
+
+
+@app.get("/status")
+def status_preview(limit: int = 100):
+    """Return a small preview of master_db.csv and delete_list.csv as JSON."""
+    master_preview = []
+    delete_list = []
+    if os.path.exists(MASTER_FILE):
+        try:
+            master = pd.read_csv(MASTER_FILE)
+            master = master.fillna("")
+            # Convert to list of dicts, limit rows
+            master_preview = master.head(limit).to_dict(orient="records")
+        except Exception:
+            master_preview = []
+
+    if os.path.exists(DELETE_OUTPUT_FILE):
+        try:
+            dl = pd.read_csv(DELETE_OUTPUT_FILE)
+            delete_list = dl["email"].astype(str).tolist()
+        except Exception:
+            delete_list = []
+
+    return JSONResponse({
+        "master_preview": master_preview,
+        "delete_list": delete_list
+    })
+
+
+@app.get("/download/master")
+def download_master():
+    if not os.path.exists(MASTER_FILE):
+        return JSONResponse({"error": "master_db.csv not found"}, status_code=404)
+    return FileResponse(
+        MASTER_FILE,
+        media_type='text/csv',
+        filename="master_db.csv"
+    )
 
 @app.get("/download")
 def download_file():
