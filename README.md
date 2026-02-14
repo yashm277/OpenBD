@@ -5,7 +5,7 @@ A FastAPI application for processing email data dumps and identifying emails to 
 ## **Quick Start - How to Run**
 ### **1. Install Required Packages**
 ```powershell
-pip install fastapi uvicorn pandas
+pip install fastapi uvicorn pandas python-multipart
 ```
 ### **2. Start the Server**
 ```powershell
@@ -18,10 +18,9 @@ The app will run at: **http://localhost:8000**
 - Go to **http://localhost:8000/docs** (Swagger UI - interactive documentation)
 - Or use **http://localhost:8000/redoc** (ReDoc)
 
-### **Step 2: Upload CSV File**
 - Click the `POST /upload` endpoint
 - Click **"Try it out"** button
-- Click **"Choose File"** and select your CSV file
+- Use **"Choose File"** to select one or more CSV files (you can select multiple files)
 - The CSV must contain these columns:
   - **Email** - email addresses
   - **Opens** - number of times email was opened
@@ -31,6 +30,8 @@ The response will show:
 - **message**: "Processed successfully" or "Soft delete applied successfully"
 - **deleted_count**: Number of emails marked for deletion
 - **download_url**: Link to download the delete list
+
+You can also open the simple web form at the site root (`/`) and upload multiple files using the browser.
 ---
 
 ## **What Gets Generated**
@@ -47,12 +48,16 @@ Emails are marked as "soft_delete" when:
 ---
 ## **Workflow Example**
 
-1. Upload `data_dump_1.csv` → Emails added to master_db.csv
-2. Upload `data_dump_2.csv` → Totals are accumulated
-3. Upload `data_dump_3.csv` → Emails meeting delete criteria are added to delete_list.csv
+1. Upload `data_dump_1.csv` and `data_dump_2.csv` and `data_dump_3.csv` (you can upload them together) → Each file counts as one dump for any email it contains
+2. Totals are accumulated across files and previous uploads; if an email appears in 3 separate dumps (files), `dump_count` will reach 3
+3. Emails with `dump_count >= 3` and `total_open == 0` are marked `soft_delete` and listed in `delete_list.csv`
 4. Click **GET /download** → Get the delete_list.csv file
 ---
 ## **Download Results**
 - Go to **http://localhost:8000/download**
 - Or click the download link from the upload response
 - This downloads the current **delete_list.csv** file
+
+---
+
+If the server crashed earlier with a message about `python-multipart`, that package is required for file uploads. Install it with the command above.
