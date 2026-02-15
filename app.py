@@ -152,8 +152,14 @@ async def upload_csv(files: List[UploadFile] = File(...)):
 
 @app.get("/")
 def homepage():
-    # Redirect to the SPA index in /static
-    return RedirectResponse(url="/static/index.html")
+    # Serve the homepage
+    return FileResponse("static/homepage.html", media_type="text/html")
+
+
+@app.get("/app")
+def app_page():
+    # Serve the main app page
+    return FileResponse("static/app.html", media_type="text/html")
 
 
 @app.get("/status")
