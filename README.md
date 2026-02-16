@@ -1,18 +1,25 @@
-# RISE - CSV Counter
+# RISE - Delete List Generator
 
-A FastAPI application for processing email data dumps and identifying emails to soft-delete based on engagement metrics.
+A FastAPI application for processing email data dumps and identifying emails to delete based on engagement metrics.
 
 ## **Quick Start - How to Run**
 ### **1. Install Required Packages**
 ```powershell
 pip install -r requirements.txt
 ```
-### **2. Start the Server**
+### **2. Setup Static Files**
 ```powershell
-uvicorn app:app --reload
+mkdir static
+move app.html static\
+move homepage.html static\
 ```
 
-**Quick Summary:** The app accepts multiple CSV files in one upload (or multiple uploads). Each file counts as one "dump" per email; an email appearing in three separate dumps with zero opens will be marked `soft_delete` and added to `delete_list.csv`.
+### **3. Start the Server**
+```powershell
+uvicorn main:app --reload
+```
+
+**Quick Summary:** The app accepts multiple CSV files in one upload (or multiple uploads). Each file counts as one "dump" per email; an email appearing in three separate dumps with zero opens will be identified for deletion and added to `delete_list.csv`.
 
 ---
 
@@ -23,12 +30,19 @@ uvicorn app:app --reload
 pip install -r requirements.txt
 ```
 
-2. Start the server:
+2. Setup static files folder:
 ```powershell
-uvicorn app:app --reload
+mkdir static
+move app.html static\
+move homepage.html static\
 ```
 
-3. Open in your browser:
+3. Start the server:
+```powershell
+uvicorn main:app --reload
+```
+
+4. Open in your browser:
    - Homepage: http://localhost:8000/ (click "Open App" to launch)
    - Main App: http://localhost:8000/app
    - API docs (optional): http://localhost:8000/docs
@@ -39,22 +53,59 @@ uvicorn app:app --reload
 
 1. Open http://localhost:8000/ and click the **"Open App"** button.
 2. You'll see 3 sections:
+   - **How It Works** — explanation of the deletion criteria
    - **Upload CSV Files** — drag and drop or click to select multiple CSVs
-   - **Process Data** — triggers processing of uploaded files
-   - **Download Results** — download the delete list or master database
+   - **Download Delete List** — download the list of emails to delete
 
 3. Workflow:
    - Upload one or more CSV files (with Email and Opens columns)
-   - Click "Process" (processing also happens automatically on upload)
+   - Processing happens automatically on upload
    - Download your results:
-     - **Delete List** → `delete_list.csv` (emails marked for soft delete)
-     - **Master Database** → `master_db.csv` (complete tracking data)
+     - **Delete List** → `delete_list.csv` (emails flagged for deletion)
+
+---
+
+## What Changed from Previous Version
+
+**Removed:**
+- Master database (`master_db.csv`) - no longer maintained
+- All master DB download/delete endpoints
+- Status tracking beyond the current session
+- Soft delete status management in a persistent database
+
+**Why?** 
+- You don't yet know the structure of your actual master database
+- You'll write a separate program to handle deletions in the real master DB
+- This tool should focus on one task: identifying emails to delete
+
+---
 
 ## How dump_count Works
 
 - Each CSV file counts as one dump for any email it contains (duplicates inside a single file count as one presence).
-- `dump_count` increases when an email appears in different files or across multiple uploads.
-- Emails with `dump_count >= 3` AND `total_open == 0` are marked for soft delete.
+- `dump_count` tracks how many different files an email appeared in.
+- Emails with `dump_count >= 3` AND `total_open == 0` are flagged for deletion.
+
+---
+
+## Input Format
+
+CSV files must contain these columns:
+- `Email` - email address
+- `Opens` - number of opens (numeric)
+
+Column names are case-insensitive and whitespace is trimmed.
+
+---
+
+## Output
+
+**delete_list.csv**
+- Single column: `email`
+- Contains all emails that appeared in 3+ dumps with 0 opens
+- Ready to be used by your separate deletion program
+
+---
 
 ## Quick Test Example
 
@@ -64,10 +115,10 @@ email,opens
 test@example.com,0
 ```
 
-2. Upload all three files (or upload them separately).
+2. Upload all three files at once (or upload them separately across multiple uploads).
 
 3. After processing:
-   - `master_db.csv` will show `test@example.com` with `dump_count = 3` and `total_open = 0`
+   - The app will show: "Processing complete! 1 emails flagged for deletion"
    - `delete_list.csv` will contain `test@example.com`
 
 ---
@@ -75,32 +126,43 @@ test@example.com,0
 ## File Storage
 
 - **Uploaded files:** `uploads/`
-- **Master database:** `master_db.csv`
 - **Delete list:** `delete_list.csv`
 
 To reset manually:
 ```powershell
-del master_db.csv
 del delete_list.csv
 rd /s /q uploads
 mkdir uploads
 ```
 
+Or use the reset endpoint:
+```powershell
+curl -X POST http://localhost:8000/reset
+```
+
 ---
 
-## Branch & deployment
+## API Endpoints
 
-- This frontend-enabled change is on the branch: `csv_counter`.
-- To get it locally:
-```powershell
-git fetch openbd
-git checkout -b csv_counter openbd/csv_counter
-```
+- `GET /` - Homepage
+- `GET /app` - Main application interface
+- `POST /upload` - Upload and process CSV files
+- `GET /download` - Download delete_list.csv
+- `GET /status` - Get current status (delete list preview, uploaded files)
+- `POST /reset` - Clear all uploaded files and delete list
+- `POST /delete/delete_list` - Delete the delete_list.csv file
 
 ---
 
 ## Troubleshooting
 
 - **Uploads fail:** Ensure `python-multipart` is installed (`pip install -r requirements.txt`).
-- **Changes not appearing:** Restart the server.
+- **Changes not appearing:** Restart the server with `uvicorn main:app --reload`.
 - **Check errors:** Look at the terminal running `uvicorn` for detailed error messages.
+- **File not found:** Make sure HTML files are in the `static/` folder.
+
+---
+
+## Next Steps
+
+Use the generated `delete_list.csv` in your separate master database deletion program. The delete list contains only the email addresses that need to be removed based on your criteria (3+ dumps, 0 opens).

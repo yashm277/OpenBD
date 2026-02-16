@@ -223,6 +223,21 @@
         font-weight: 600;
         display: inline-block;
       }
+
+      .info-box {
+        background: #f0f9ff;
+        border-left: 4px solid var(--secondary);
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 24px;
+      }
+
+      .info-box p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
       
       @media (max-width: 768px) {
         h1 { 
@@ -257,9 +272,16 @@
   </head>
   <body>
     <div class="container">
-      <h1>CSV Data Manager</h1>
-      <p class="subtitle">Upload, process, and manage your data</p>
+      <h1>Delete List Generator</h1>
+      <p class="subtitle">Upload data dumps to identify emails for deletion</p>
       
+      <div class="card">
+        <h2>How It Works</h2>
+        <div class="info-box">
+          <p>Upload your CSV data dumps (must contain "Email" and "Opens" columns). The tool will identify emails that appear in <strong>3 or more dumps with 0 total opens</strong> and generate a delete list.</p>
+        </div>
+      </div>
+
       <div class="card">
         <h2>Upload CSV Files</h2>
         <div class="upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Upload CSV files">
@@ -271,7 +293,7 @@
         </div>
         
         <div class="button-group">
-          <button id="uploadBtn">📤 Upload</button>
+          <button id="uploadBtn">📤 Upload & Process</button>
         </div>
         
         <div id="progress"><div></div></div>
@@ -279,21 +301,11 @@
       </div>
 
       <div class="card">
-        <h2>Process Data</h2>
-        <p style="color: #626569; margin-bottom: 24px;">Process uploaded CSV files and generate delete list</p>
-        <button id="processBtn">⚙️ Process</button>
-        <div id="processStatus"></div>
-      </div>
-
-      <div class="card">
-        <h2>Download Results</h2>
-        <p style="color: #626569; margin-bottom: 24px;">Download your data and results</p>
+        <h2>Download Delete List</h2>
+        <p style="color: #626569; margin-bottom: 24px;">Download the list of emails to delete</p>
         <div class="button-group">
           <a id="downloadDeleteList" href="/download" download style="text-decoration: none;">
-            <button class="btn">📥 Delete List</button>
-          </a>
-          <a id="downloadMaster" href="/download/master" download style="text-decoration: none;">
-            <button class="btn">📥 Master Database</button>
+            <button class="btn">📥 Download Delete List</button>
           </a>
         </div>
       </div>
@@ -302,13 +314,11 @@
     <script>
       const filesInput = document.getElementById('files')
       const uploadBtn = document.getElementById('uploadBtn')
-      const processBtn = document.getElementById('processBtn')
       const progressBar = document.querySelector('#progress > div')
       const progress = document.getElementById('progress')
       const statusText = document.getElementById('statusText')
       const uploadZone = document.getElementById('uploadZone')
       const fileNamesEl = document.getElementById('fileNames')
-      const processStatus = document.getElementById('processStatus')
 
       // File selection display
       filesInput.onchange = () => {
@@ -374,7 +384,12 @@
         }
         xhr.onload = () => {
           progressBar.style.width = '100%'
-          showStatus('✓ Upload complete', 'success')
+          if (xhr.status === 200) {
+            const response = JSON.parse(xhr.responseText)
+            showStatus(`✓ Processing complete! ${response.deleted_count} emails flagged for deletion`, 'success')
+          } else {
+            showStatus('✗ Processing failed', 'error')
+          }
           
           setTimeout(() => {
             progress.style.display = 'none'
@@ -385,15 +400,6 @@
           showStatus('✗ Upload failed', 'error')
         }
         xhr.send(form)
-      }
-
-      // Process data
-      processBtn.onclick = () => {
-        processStatus.innerHTML = '<div id="statusText" class="show" style="margin-top: 16px;">Processing...</div>'
-        // The processing happens automatically on upload, so we just show a message
-        setTimeout(() => {
-          processStatus.innerHTML = '<div id="statusText" class="show success" style="margin-top: 16px;">✓ Data processed successfully</div>'
-        }, 500)
       }
 
       function showStatus(message, className) {
