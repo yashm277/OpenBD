@@ -66,6 +66,14 @@
       </div>
       <div class="card">
         <h2>Upload CSV Files</h2>
+        <div style="margin-bottom: 16px;">
+          <label for="duplicateType" style="font-weight: 700; color: var(--text-secondary); margin-right: 8px;">Check duplicates by:</label>
+          <select id="duplicateType" style="padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); font-size: 1rem;">
+            <option value="email">Email</option>
+            <option value="company">Company Name</option>
+            <option value="fullname">Full Name</option>
+          </select>
+        </div>
         <div class="upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Upload CSV files">
           <span class="upload-icon" aria-hidden="true">📂</span>
           <input id="files" type="file" multiple accept=".csv" aria-label="Choose CSV files to upload" />
@@ -81,7 +89,7 @@
       </div>
       <div class="card">
         <h2>Download Duplicates Report</h2>
-        <p style="color: #626569; margin-bottom: 24px;">Download the list of duplicate emails</p>
+        <p style="color: #254672; margin-bottom: 24px;">Download the list of duplicate emails</p>
         <div class="button-group">
           <a id="downloadDuplicates" href="#" download style="text-decoration: none; display: none;">
             <button class="btn">📥 Download Duplicates</button>
@@ -135,12 +143,14 @@
       // Upload files
       uploadBtn.onclick = () => {
         const files = filesInput.files
+        const duplicateType = document.getElementById('duplicateType').value
         if (!files || files.length === 0) {
           showStatus('Please select at least one CSV file', 'warning')
           return
         }
         const form = new FormData()
         for (let i=0; i<files.length; i++) form.append('files', files[i])
+        form.append('duplicate_type', duplicateType)
         progress.style.display = 'block'
         statusText.classList.add('show')
         const xhr = new XMLHttpRequest()
