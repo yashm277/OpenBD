@@ -1,3 +1,113 @@
+
+# All imports must be at the very top
+import os
+import pandas as pd
+from typing import List
+from fastapi import FastAPI, UploadFile, File
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+
+app = FastAPI()
+
+DELETE_OUTPUT_FILE = "delete_list.csv"
+UPLOAD_FOLDER = "uploads"
+
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Serve static frontend files from /static
+if not os.path.exists("static"):
+    os.makedirs("static", exist_ok=True)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+def find_duplicate_emails(file_paths: List[str], output_file: str = "duplicate_emails.csv"):
+    """
+    Combine multiple CSVs, find duplicate emails (case-insensitive, stripped),
+    and output a CSV with columns: Full Name, Company Name, Count, Emails.
+    Ignores empty emails and handles missing columns safely.
+    """
+    all_rows = []
+    for fp in file_paths:
+        try:
+            df = pd.read_csv(fp)
+        except Exception:
+            continue
+        # Normalize columns
+        df.columns = [str(col).strip().lower() for col in df.columns]
+        # Skip if no email column
+        if "email" not in df.columns:
+            continue
+        # Clean emails
+        df["email"] = df["email"].astype(str).str.strip().str.lower()
+        df = df[df["email"] != ""]
+        # Fill missing name/company columns
+        for col in ["first_name", "last_name", "company"]:
+            if col not in df.columns:
+                df[col] = ""
+        all_rows.append(df)
+    if not all_rows:
+        return 0
+    combined = pd.concat(all_rows, ignore_index=True)
+    # Group by email
+    grouped = combined.groupby("email", as_index=False).agg({
+        "first_name": "first",
+        "last_name": "first",
+        "company": "first",
+        "email": list
+    })
+    # Count occurrences
+    grouped["Count"] = combined.groupby("email").size().values
+    # Only duplicates
+    duplicates = grouped[grouped["Count"] > 1].copy()
+    if duplicates.empty:
+        # No duplicates found
+        return 0
+    # Merge names and emails
+    duplicates["Full Name"] = (duplicates["first_name"].astype(str).str.strip() + " " + duplicates["last_name"].astype(str).str.strip()).str.strip()
+    duplicates["Company Name"] = duplicates["company"].astype(str)
+    duplicates["Emails"] = duplicates["email"].apply(lambda x: ", ".join(sorted(set(x))))
+    out_df = duplicates[["Full Name", "Company Name", "Count", "Emails"]]
+    out_df.to_csv(output_file, index=False)
+    return len(out_df)
+
+# ...existing code...
+
+# Duplicate Email Finder endpoint
+@app.post("/duplicate-email-finder")
+async def duplicate_email_finder(files: List[UploadFile] = File(...)):
+    """
+    Accept one or more CSV files, find duplicate emails, and generate a report.
+    """
+    DUPLICATE_OUTPUT_FILE = "duplicate_emails.csv"
+    saved_paths = []
+    for file in files:
+        file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+        with open(file_path, "wb") as f:
+            f.write(await file.read())
+        saved_paths.append(file_path)
+    try:
+        duplicate_count = find_duplicate_emails(saved_paths, DUPLICATE_OUTPUT_FILE)
+    except Exception as e:
+        return JSONResponse({"error": f"Processing failed: {str(e)}"}, status_code=400)
+    if duplicate_count == 0:
+        return JSONResponse({"message": "No duplicate emails found.", "download_url": None, "duplicate_count": 0})
+    return JSONResponse({
+        "message": "Processed successfully",
+        "duplicate_count": duplicate_count,
+        "download_url": "/download-duplicates"
+    })
+
+# Download endpoint for duplicate_emails.csv
+@app.get("/download-duplicates")
+def download_duplicates():
+    DUPLICATE_OUTPUT_FILE = "duplicate_emails.csv"
+    if not os.path.exists(DUPLICATE_OUTPUT_FILE):
+        return JSONResponse({"error": "duplicate_emails.csv not found"}, status_code=404)
+    return FileResponse(
+        DUPLICATE_OUTPUT_FILE,
+        media_type="text/csv",
+        filename="duplicate_emails.csv"
+    )
+
+
 import os
 import pandas as pd
 from typing import List
