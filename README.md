@@ -1,25 +1,35 @@
-# RISE - Delete List Generator
 
-A FastAPI application for processing email data dumps and identifying emails to delete based on engagement metrics.
+# RISE - Email Data Tools
+
+A FastAPI application for processing email data dumps. Now includes two features:
+- **Delete List Generator**: Identify emails to delete based on engagement metrics.
+- **Duplicate Email Finder**: Find duplicate emails across multiple CSVs.
 
 ## **Quick Start - How to Run**
 ### **1. Install Required Packages**
 ```powershell
 pip install -r requirements.txt
 ```
+
 ### **2. Setup Static Files**
 ```powershell
 mkdir static
 move app.html static\
 move homepage.html static\
+move duplicate.html static\
 ```
+
 
 ### **3. Start the Server**
 ```powershell
-uvicorn main:app --reload
+uvicorn app:app --reload
 ```
 
-**Quick Summary:** The app accepts multiple CSV files in one upload (or multiple uploads). Each file counts as one "dump" per email; an email appearing in three separate dumps with zero opens will be identified for deletion and added to `delete_list.csv`.
+
+**Quick Summary:**
+- The app now supports two tools from the homepage:
+   - **Delete List Generator**: Upload CSVs with Email/Opens columns to generate `delete_list.csv` (emails in 3+ dumps with 0 opens).
+   - **Duplicate Email Finder**: Upload CSVs with email/name/company columns to generate `duplicate_emails.csv` (all duplicate emails, grouped).
 
 ---
 
@@ -42,26 +52,31 @@ move homepage.html static\
 uvicorn main:app --reload
 ```
 
+
 4. Open in your browser:
-   - Homepage: http://localhost:8000/ (click "Open App" to launch)
-   - Main App: http://localhost:8000/app
+   - Homepage: http://localhost:8000/ (choose a tool)
+   - Delete List Generator: http://localhost:8000/app
+   - Duplicate Email Finder: http://localhost:8000/static/duplicate.html
    - API docs (optional): http://localhost:8000/docs
 
 ---
 
+
 ## How to Use the App
 
-1. Open http://localhost:8000/ and click the **"Open App"** button.
-2. You'll see 3 sections:
-   - **How It Works** — explanation of the deletion criteria
-   - **Upload CSV Files** — drag and drop or click to select multiple CSVs
-   - **Download Delete List** — download the list of emails to delete
+1. Open http://localhost:8000/ and choose a tool:
+   - **Open App**: Delete List Generator (for deletion list)
+   - **Duplicate Email Finder**: Find duplicate emails
 
-3. Workflow:
-   - Upload one or more CSV files (with Email and Opens columns)
-   - Processing happens automatically on upload
-   - Download your results:
-     - **Delete List** → `delete_list.csv` (emails flagged for deletion)
+### Delete List Generator
+1. Upload one or more CSV files (must have `Email` and `Opens` columns)
+2. Processing happens automatically
+3. Download your results: `delete_list.csv` (emails flagged for deletion)
+
+### Duplicate Email Finder
+1. Upload one or more CSV files (must have `email` column; `first_name`, `last_name`, `company` optional)
+2. Processing happens automatically
+3. Download your results: `duplicate_emails.csv` (all duplicate emails, grouped by email)
 
 ---
 
@@ -98,12 +113,20 @@ Column names are case-insensitive and whitespace is trimmed.
 
 ---
 
+
 ## Output
 
-**delete_list.csv**
+**delete_list.csv** (Delete List Generator)
 - Single column: `email`
 - Contains all emails that appeared in 3+ dumps with 0 opens
 - Ready to be used by your separate deletion program
+
+**duplicate_emails.csv** (Duplicate Email Finder)
+- Columns: `Full Name`, `Company Name`, `Count`, `Emails`
+- Each row is a duplicate email (appeared more than once across all uploads)
+- `Full Name` and `Company Name` are from the first occurrence
+- `Count` is the number of times the email appeared
+- `Emails` is a comma-separated list of all duplicate emails (should be the same email repeated)
 
 ---
 
@@ -123,10 +146,12 @@ test@example.com,0
 
 ---
 
+
 ## File Storage
 
 - **Uploaded files:** `uploads/`
 - **Delete list:** `delete_list.csv`
+- **Duplicate emails report:** `duplicate_emails.csv`
 
 To reset manually:
 ```powershell
@@ -142,24 +167,28 @@ curl -X POST http://localhost:8000/reset
 
 ---
 
+
 ## API Endpoints
 
 - `GET /` - Homepage
-- `GET /app` - Main application interface
-- `POST /upload` - Upload and process CSV files
+- `GET /app` - Main application interface (Delete List Generator)
+- `POST /upload` - Upload and process CSV files for delete list
 - `GET /download` - Download delete_list.csv
 - `GET /status` - Get current status (delete list preview, uploaded files)
 - `POST /reset` - Clear all uploaded files and delete list
 - `POST /delete/delete_list` - Delete the delete_list.csv file
+- `POST /duplicate-email-finder` - Upload and process CSV files for duplicate email finder
+- `GET /download-duplicates` - Download duplicate_emails.csv
 
 ---
+
 
 ## Troubleshooting
 
 - **Uploads fail:** Ensure `python-multipart` is installed (`pip install -r requirements.txt`).
-- **Changes not appearing:** Restart the server with `uvicorn main:app --reload`.
+- **Changes not appearing:** Restart the server with `uvicorn app:app --reload`.
 - **Check errors:** Look at the terminal running `uvicorn` for detailed error messages.
-- **File not found:** Make sure HTML files are in the `static/` folder.
+- **File not found:** Make sure all HTML files (app.html, homepage.html, duplicate.html) are in the `static/` folder.
 
 ---
 
