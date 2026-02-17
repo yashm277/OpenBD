@@ -1,0 +1,46 @@
+first_name,last_name,company,email
+Kaif,Patel,Krea,kaifp0374@gmail.com
+Wahiq,Iqbal,RISE,kaifp0374@gmail.com
+Kaif,Patel,Krea,kaifp0374@gmail.com
+Wahiq,Iqbal,RISE,wahiq@rise.com
+Kaif,Patel,Krea,kaif@krea.com
+Wahiq,Iqbal,RISE,kaif@krea.com
+
+# Many more rows with complex duplicates, similar names, and edge cases
+John,Smith,Alpha,jsmith@alpha.com
+Jane,Doe,Beta,janedoe@beta.com
+John,Smith,Alpha,jsmith@alpha.com
+Jane,Doe,Beta,janedoe@beta.com
+John,Smith,Alpha,jsmith@alpha.com
+Jane,Doe,Beta,janedoe@beta.com
+
+# Duplicates with different casing and spaces
+john,smith,Alpha,jsmith@alpha.com 
+ Jane , Doe ,Beta, JANEDOE@BETA.COM
+
+# Duplicates with swapped names
+Smith,John,Alpha,jsmith@alpha.com
+Doe,Jane,Beta,janedoe@beta.com
+
+# Unique entries
+Alice,Wonderland,Wonder,alice@wonder.com
+Bob,Builder,Build,bob@build.com
+
+
+# Large block of repeated and complex emails
+for i in range(1, 101):
+	print(f"Test{i},User{i},CompanyA,testuser{i}@companya.com")
+	print(f"Test{i},User{i},CompanyA,testuser{i}@companya.com")
+	print(f"Test{i},User{i},CompanyB,testuser{i}@companyb.com")
+	print(f"Test{i},User{i},CompanyB,testuser{i}@companyb.com")
+	print(f"Test{i},User{i},CompanyC,testuser{i}@companyc.com")
+	print(f"Test{i},User{i},CompanyC,testuser{i}@companyc.com")
+	print(f"Test{i},User{i},CompanyA,testuser{i}@companya.com ")
+	print(f"Test{i},User{i},CompanyA, TESTUSER{i}@COMPANYA.COM")
+	print(f"Test{i},User{i},CompanyA, testuser{i}@companya.com")
+	print(f"Test{i},User{i},CompanyA, testuser{i}@companya.com ")
+	print(f"Test{i},User{i},CompanyA, testuser{i}@companya.com")
+	print(f"Test{i},User{i},CompanyA, testuser{i}@companya.com")
+	print(f"Test{i},User{i},CompanyA, testuser{i}@companya.com")
+	print(f"Test{i},User{i},CompanyA, testuser{i}@companya.com")
+	print(f"Test{i},User{i},CompanyA, testuser{i}@companya.com")

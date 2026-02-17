@@ -50,7 +50,7 @@ move homepage.html static\
 
 3. Start the server:
 ```powershell
-uvicorn main:app --reload
+uvicorn app:app --reload
 ```
 
 
@@ -78,7 +78,10 @@ uvicorn main:app --reload
 ### Duplicate Email Finder
 1. Upload one or more CSV files (must have `email` column; `first_name`, `last_name`, `company` optional)
 2. Processing happens automatically
-3. Download your results: `duplicate_emails.csv` (all duplicate emails, grouped by email)
+3. Download your results:
+   - `duplicate_emails.csv` (all duplicate emails, grouped by email)
+   - `common_company.csv` (all duplicate companies, grouped by company)
+   - `common_fullname.csv` (all duplicate full names, grouped by full name)
 
 ---
 
@@ -128,12 +131,21 @@ Column names are case-insensitive and whitespace is trimmed.
 - Contains all emails that appeared in 3+ dumps with 0 opens
 - Ready to be used by your separate deletion program
 
-**duplicate_emails.csv** (Duplicate Email Finder)
-- Columns: `Full Name`, `Company Name`, `Count`, `Emails`
-- Each row is a duplicate email (appeared more than once across all uploads)
-- `Full Name` and `Company Name` are from the first occurrence
-- `Count` is the number of times the email appeared
-- `Emails` is a comma-separated list of all duplicate emails (should be the same email repeated)
+
+**Duplicate Email Finder Outputs:**
+- **duplicate_emails.csv** (grouped by email): Columns: `Full Name`, `Company Name`, `Count`, `Emails`
+- **common_company.csv** (grouped by company): Columns: `Company Name`, `Full Name(s)`, `Count`, `Emails`
+- **common_fullname.csv** (grouped by full name): Columns: `Full Name`, `Company Name(s)`, `Count`, `Emails`
+
+Each file contains all groups with more than one occurrence. The grouping type is selected in the Duplicate Email Finder UI.
+## Hardcore Test Example
+
+To stress test the app, use the provided `test_duplicates_hardcore.csv` (contains 1000+ rows, complex duplicates, and edge cases). Upload it in the Duplicate Email Finder to verify performance and correctness with large datasets.
+---
+
+## Branding
+
+The UI and documentation now use the full company name: **RISE Research**.
 
 ---
 

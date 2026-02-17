@@ -272,13 +272,21 @@
   </head>
   <body>
     <div class="container">
-      <h1>Delete List Generator</h1>
-      <p class="subtitle">Upload data dumps to identify emails for deletion</p>
+      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;">
+        <img src="https://static.thenounproject.com/png/104062-200.png" alt="RISE Research Logo" style="height: 48px;">
+        <div>
+          <h1 style="font-size: 2.5rem; font-weight: 900; color: var(--primary); margin: 0;">RISE Research</h1>
+          <div style="color: var(--text-secondary); font-size: 1.1rem; font-weight: 700;">Delete List Generator</div>
+        </div>
+      </div>
+      <a href="/" style="display: inline-block; margin-bottom: 24px; text-decoration: none;">
+        <button class="btn btn-secondary" style="background: var(--secondary); color: #fff; font-weight: 700; border-radius: 6px; padding: 10px 28px; font-size: 1rem;">← Back to Dashboard</button>
+      </a>
       
-      <div class="card">
-        <h2>How It Works</h2>
+      <div class="card" style="margin-bottom: 32px;">
+        <h2 style="color: var(--primary);">How It Works</h2>
         <div class="info-box">
-          <p>Upload your CSV data dumps (must contain "Email" and "Opens" columns). The tool will identify emails that appear in <strong>3 or more dumps with 0 total opens</strong> and generate a delete list.</p>
+          <p>Upload your CSV data dumps (must contain <strong>Email</strong> and <strong>Opens</strong> columns). The tool will identify emails that appear in <strong>3 or more dumps with 0 total opens</strong> and generate a delete list.</p>
         </div>
       </div>
 
