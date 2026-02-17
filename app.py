@@ -1,15 +1,16 @@
 
-# All imports must be at the very top
+# All imports and app initialization must be at the very top
 import os
 import pandas as pd
 from typing import List
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
 DELETE_OUTPUT_FILE = "delete_list.csv"
+DUPLICATE_OUTPUT_FILE = "duplicate_emails.csv"
 UPLOAD_FOLDER = "uploads"
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -17,6 +18,27 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 if not os.path.exists("static"):
     os.makedirs("static", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Clear uploads folder utility
+def clear_uploads_folder():
+    try:
+        for fname in os.listdir(UPLOAD_FOLDER):
+            path = os.path.join(UPLOAD_FOLDER, fname)
+            if os.path.isfile(path):
+                os.remove(path)
+    except Exception:
+        pass
+
+# Clear uploads on server shutdown
+@app.on_event("shutdown")
+def shutdown_event():
+    clear_uploads_folder()
+
+# Endpoint to clear uploads on demand (for frontend navigation)
+@app.post("/clear-uploads")
+def clear_uploads():
+    clear_uploads_folder()
+    return JSONResponse({"result": "uploads_cleared"})
 
 def find_duplicate_emails(file_paths: List[str], output_file: str = "duplicate_emails.csv"):
     """
@@ -76,9 +98,12 @@ async def duplicate_email_finder(files: List[UploadFile] = File(...)):
     """
     Accept one or more CSV files, find duplicate emails, and generate a report.
     """
-    DUPLICATE_OUTPUT_FILE = "duplicate_emails.csv"
+    allowed_ext = {'.csv', '.xlsx'}
     saved_paths = []
     for file in files:
+        ext = os.path.splitext(file.filename)[1].lower()
+        if ext not in allowed_ext:
+            return JSONResponse({"error": f"Invalid file type: {file.filename}. Only .csv and .xlsx are allowed."}, status_code=400)
         file_path = os.path.join(UPLOAD_FOLDER, file.filename)
         with open(file_path, "wb") as f:
             f.write(await file.read())
@@ -187,8 +212,13 @@ async def upload_csv(files: List[UploadFile] = File(...)):
     Accept one or more CSV files, process them as data dumps and generate delete list.
     Each file counts as one dump. Emails appearing in 3+ dumps with 0 opens are flagged for deletion.
     """
+
+    allowed_ext = {'.csv', '.xlsx'}
     saved_paths = []
     for file in files:
+        ext = os.path.splitext(file.filename)[1].lower()
+        if ext not in allowed_ext:
+            return JSONResponse({"error": f"Invalid file type: {file.filename}. Only .csv and .xlsx are allowed."}, status_code=400)
         file_path = os.path.join(UPLOAD_FOLDER, file.filename)
         with open(file_path, "wb") as f:
             f.write(await file.read())
@@ -203,15 +233,17 @@ async def upload_csv(files: List[UploadFile] = File(...)):
     }
 
 
+
+# Serve the dashboard as the main entry point
 @app.get("/")
-def homepage():
-    # Serve the homepage
-    return FileResponse("static/homepage.html", media_type="text/html")
+def dashboard():
+    return FileResponse("static/dashboard.html", media_type="text/html")
+
 
 
 @app.get("/app")
 def app_page():
-    # Serve the main app page
+    # Serve the Delete List Generator page
     return FileResponse("static/app.html", media_type="text/html")
 
 

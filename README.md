@@ -11,12 +11,13 @@ A FastAPI application for processing email data dumps. Now includes two features
 pip install -r requirements.txt
 ```
 
+
 ### **2. Setup Static Files**
 ```powershell
 mkdir static
 move app.html static\
-move homepage.html static\
 move duplicate.html static\
+move dashboard.html static\
 ```
 
 
@@ -53,8 +54,9 @@ uvicorn main:app --reload
 ```
 
 
+
 4. Open in your browser:
-   - Homepage: http://localhost:8000/ (choose a tool)
+   - Dashboard: http://localhost:8000/ (choose a tool)
    - Delete List Generator: http://localhost:8000/app
    - Duplicate Email Finder: http://localhost:8000/static/duplicate.html
    - API docs (optional): http://localhost:8000/docs
@@ -105,9 +107,14 @@ uvicorn main:app --reload
 
 ## Input Format
 
-CSV files must contain these columns:
-- `Email` - email address
-- `Opens` - number of opens (numeric)
+
+### File Upload Requirements
+
+- Only `.csv` and `.xlsx` files are accepted for upload.
+- For Delete List Generator: CSV/XLSX must contain these columns:
+   - `Email` - email address
+   - `Opens` - number of opens (numeric)
+- For Duplicate Email Finder: CSV/XLSX must contain at least `email` column. `first_name`, `last_name`, and `company` are optional.
 
 Column names are case-insensitive and whitespace is trimmed.
 
@@ -183,12 +190,14 @@ curl -X POST http://localhost:8000/reset
 ---
 
 
+
 ## Troubleshooting
 
 - **Uploads fail:** Ensure `python-multipart` is installed (`pip install -r requirements.txt`).
+- **Invalid file type:** Only `.csv` and `.xlsx` files are accepted for upload.
 - **Changes not appearing:** Restart the server with `uvicorn app:app --reload`.
 - **Check errors:** Look at the terminal running `uvicorn` for detailed error messages.
-- **File not found:** Make sure all HTML files (app.html, homepage.html, duplicate.html) are in the `static/` folder.
+- **File not found:** Make sure all HTML files (app.html, dashboard.html, duplicate.html) are in the `static/` folder.
 
 ---
 

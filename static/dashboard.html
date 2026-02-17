@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>RISE - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --primary: #14bf96;
+        --primary-dark: #0d9672;
+        --secondary: #1c758a;
+        --bg: #f7f8fa;
+        --text: #21242c;
+      }
+      body { font-family: 'Lato', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+      .container { text-align: center; max-width: 600px; }
+      h1 { font-size: 3.5rem; font-weight: 900; color: var(--text); margin-bottom: 16px; }
+      .subtitle { color: #626569; font-size: 1.25rem; margin-bottom: 48px; font-weight: 400; }
+      a { text-decoration: none; }
+      .btn { padding: 16px 48px; min-height: 56px; cursor: pointer; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1.125rem; font-weight: 700; transition: all 0.2s; box-shadow: 0 4px 12px rgba(20, 191, 150, 0.2); }
+      .btn:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(20, 191, 150, 0.3); }
+      .btn-secondary { background: var(--secondary); margin-top: 32px; }
+      .btn-secondary:hover { background: #14536a; }
+      @media (max-width: 480px) { h1 { font-size: 2.5rem; } .subtitle { font-size: 1rem; } .btn { font-size: 1rem; padding: 14px 32px; } }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>RISE</h1>
+      <p class="subtitle">Email Data Tools Dashboard</p>
+      <a href="/app"><button class="btn">Delete List Generator</button></a>
+      <a href="/static/duplicate.html"><button class="btn btn-secondary">Duplicate Email Finder</button></a>
+    </div>
+  </body>
+</html>
