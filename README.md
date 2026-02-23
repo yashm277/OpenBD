@@ -1,9 +1,9 @@
-
 # RISE - Email Data Tools
 
-A FastAPI application for processing email data dumps. Now includes two features:
+A FastAPI application for processing email data dumps. Now includes three features:
 - **Delete List Generator**: Identify emails to delete based on engagement metrics.
 - **Duplicate Email Finder**: Find duplicate emails across multiple CSVs.
+- **Gmail Lead Analyzer**: Analyze Gmail leads directly from the dashboard.
 
 ## **Quick Start - How to Run**
 ### **1. Install Required Packages**
@@ -11,26 +11,25 @@ A FastAPI application for processing email data dumps. Now includes two features
 pip install -r requirements.txt
 ```
 
-
 ### **2. Setup Static Files**
 ```powershell
 mkdir static
 move app.html static\
 move duplicate.html static\
 move dashboard.html static\
+move logo.png static\
 ```
-
 
 ### **3. Start the Server**
 ```powershell
 uvicorn app:app --reload
 ```
 
-
 **Quick Summary:**
-- The app now supports two tools from the homepage:
+- The app now supports three tools from the homepage:
    - **Delete List Generator**: Upload CSVs with Email/Opens columns to generate `delete_list.csv` (emails in 3+ dumps with 0 opens).
    - **Duplicate Email Finder**: Upload CSVs with email/name/company columns to generate `duplicate_emails.csv` (all duplicate emails, grouped).
+   - **Gmail Lead Analyzer**: Direct link to analyze Gmail leads: [Gmail Lead Analyzer](https://riseglobaleducation.com/).
 
 ---
 
@@ -53,16 +52,14 @@ move homepage.html static\
 uvicorn app:app --reload
 ```
 
-
-
 4. Open in your browser:
    - Dashboard: http://localhost:8000/ (choose a tool)
    - Delete List Generator: http://localhost:8000/app
    - Duplicate Email Finder: http://localhost:8000/static/duplicate.html
+   - Gmail Lead Analyzer: [https://riseglobaleducation.com/](https://riseglobaleducation.com/)
    - API docs (optional): http://localhost:8000/docs
 
 ---
-
 
 ## How to Use the App
 
@@ -82,6 +79,9 @@ uvicorn app:app --reload
    - `duplicate_emails.csv` (all duplicate emails, grouped by email)
    - `common_company.csv` (all duplicate companies, grouped by company)
    - `common_fullname.csv` (all duplicate full names, grouped by full name)
+
+### Gmail Lead Analyzer
+- Direct link to analyze Gmail leads: [Gmail Lead Analyzer](https://riseglobaleducation.com/)
 
 ---
 
@@ -145,7 +145,7 @@ To stress test the app, use the provided `test_duplicates_hardcore.csv` (contain
 
 ## Branding
 
-The UI and documentation now use the full company name: **RISE Research**.
+The UI and documentation now use the full company name: **RISE Research**. The dashboard includes the official logo and adheres to the brand guidelines.
 
 ---
 
