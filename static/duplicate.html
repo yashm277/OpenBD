@@ -7,23 +7,32 @@
     <title>Duplicate Email Finder - RISE</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;700;900&display=swap" rel="stylesheet">
     <style>
       :root {
-        --primary: #14bf96;
-        --primary-dark: #0d9672;
-        --secondary: #1c758a;
-        --bg: #f7f8fa;
-        --card-bg: #ffffff;
-        --border: #e3e5e8;
-        --text: #21242c;
-        --text-secondary: #626569;
-        --success: #14bf96;
-        --warning: #ffa500;
-        --error: #d92916;
-      }
+  --primary: #1C7C54;
+  --primary-dark: #155c3f;
+  --secondary: #83684F;
+  --bg: #FBF8EF;
+  --card-bg: #FFFFFF;
+  --border: #e6e2d8;
+  --text: #000000;
+  --text-secondary: #555555;
+  --success: #1C7C54;
+  --warning: #c48a2c;
+  --error: #c0392b;
+}
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 0; line-height: 1.6; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+      body { 
+  font-family: 'Red Hat Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; 
+  background: var(--bg); 
+  color: var(--text); 
+  min-height: 100vh; 
+  padding: 0; 
+  line-height: 1.6; 
+  -webkit-font-smoothing: antialiased; 
+  -moz-osx-font-smoothing: grayscale; 
+}
       .container { max-width: 800px; margin: 0 auto; padding: 40px 24px; }
       h1 { font-family: 'Lato', sans-serif; font-size: 2.5rem; font-weight: 900; color: var(--text); margin-bottom: 8px; }
       .subtitle { color: var(--text-secondary); font-size: 1.125rem; margin-bottom: 40px; font-weight: 400; }
@@ -35,11 +44,55 @@
       .upload-text { font-size: 1.125rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
       .file-info { color: var(--text-secondary); font-size: 0.95rem; }
       input[type=file] { opacity: 0; position: absolute; width: 100%; height: 100%; top: 0; left: 0; cursor: pointer; }
-      .button-group { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
-      button, .btn { padding: 12px 24px; min-height: 44px; cursor: pointer; background: var(--primary); color: white; border: none; border-radius: 6px; font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 1rem; font-weight: 700; transition: all 0.2s ease; text-decoration: none; display: inline-block; box-shadow: 0 2px 4px rgba(20, 191, 150, 0.2); -webkit-appearance: none; -moz-appearance: none; appearance: none; -webkit-tap-highlight-color: transparent; }
-      button:hover, .btn:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 8px rgba(20, 191, 150, 0.3); }
-      @media (hover: none) and (pointer: coarse) { button:hover, .btn:hover { transform: none; } }
-      button:active, .btn:active { transform: translateY(0); }
+      .button-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+button,
+.btn {
+  padding: 12px 26px;
+  min-height: 46px;
+  cursor: pointer;
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Red Hat Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+  box-shadow: 0 4px 12px rgba(28, 124, 84, 0.20);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:hover,
+.btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(28, 124, 84, 0.30);
+}
+
+@media (hover: none) and (pointer: coarse) {
+  button:hover,
+  .btn:hover {
+    transform: none;
+  }
+}
+
+button:active,
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(28, 124, 84, 0.25);
+}
       #progress { width: 100%; height: 10px; background: #e3e5e8; border-radius: 10px; overflow: hidden; margin-top: 16px; display: none; }
       #progress > div { height: 100%; width: 0; background: var(--primary); transition: width 0.3s ease; border-radius: 10px; }
       #statusText { margin-top: 16px; color: var(--text-secondary); font-weight: 600; font-size: 1rem; text-align: center; display: none; }
@@ -50,8 +103,15 @@
       .file-selected { background: #e3fcf4; padding: 12px 16px; border-radius: 8px; margin-top: 16px; color: var(--primary-dark); font-weight: 600; display: inline-block; }
       .info-box { background: #f0f9ff; border-left: 4px solid var(--secondary); padding: 16px; border-radius: 8px; margin-bottom: 24px; }
       .info-box p { margin: 0; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5; }
-      @media (max-width: 768px) { h1 { font-size: 2rem; } .card { padding: 24px; } .button-group { flex-direction: column; } button, .btn { width: 100%; } }
-      @media (max-width: 480px) { .container { padding: 20px 16px; } h1 { font-size: 1.75rem; } .subtitle { font-size: 1rem; } .card { padding: 20px; } }
+@media (max-width: 768px) { 
+  h1 { font-size: 2rem; }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+  }
+}
     </style>
   </head>
   <body>
