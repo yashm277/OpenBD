@@ -366,7 +366,87 @@ def reset_server():
         pass
 
     return JSONResponse({"result": results})
+OVERLAP_OUTPUT_FILE = "overlap_filtered.csv"
 
+def process_overlap(csv1_path: str, csv2_path: str):
+    """
+    Remove emails in CSV2 from CSV1 and output remaining emails.
+    """
+
+    df1 = pd.read_csv(csv1_path)
+    df2 = pd.read_csv(csv2_path)
+
+    df1.columns = [c.strip().lower() for c in df1.columns]
+    df2.columns = [c.strip().lower() for c in df2.columns]
+
+    if "email" not in df1.columns or "email" not in df2.columns:
+        raise ValueError("Both CSV files must contain an 'email' column")
+
+    df1["email"] = df1["email"].astype(str).str.strip().str.lower()
+    df2["email"] = df2["email"].astype(str).str.strip().str.lower()
+
+    emails1 = set(df1["email"])
+    emails2 = set(df2["email"])
+
+    remaining_emails = emails1 - emails2
+
+    result_df = pd.DataFrame({"email": list(remaining_emails)})
+    result_df.to_csv(OVERLAP_OUTPUT_FILE, index=False)
+
+    overlap_count = len(emails1 & emails2)
+
+    return {
+        "csv1_total": len(emails1),
+        "csv2_total": len(emails2),
+        "overlap_count": overlap_count,
+        "remaining_count": len(remaining_emails)
+    }
+@app.post("/overlap-checker")
+async def overlap_checker(
+    file1: UploadFile = File(...),
+    file2: UploadFile = File(...)
+):
+
+    allowed_ext = {".csv", ".xlsx"}
+
+    ext1 = os.path.splitext(file1.filename)[1].lower()
+    ext2 = os.path.splitext(file2.filename)[1].lower()
+
+    if ext1 not in allowed_ext or ext2 not in allowed_ext:
+        return JSONResponse(
+            {"error": "Only CSV or XLSX files allowed"},
+            status_code=400
+        )
+
+    path1 = os.path.join(UPLOAD_FOLDER, file1.filename)
+    path2 = os.path.join(UPLOAD_FOLDER, file2.filename)
+
+    with open(path1, "wb") as f:
+        f.write(await file1.read())
+
+    with open(path2, "wb") as f:
+        f.write(await file2.read())
+
+    try:
+        stats = process_overlap(path1, path2)
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=400)
+
+    return {
+        "message": "Overlap processed successfully",
+        **stats,
+        "download_url": "/download-overlap"
+    }
+@app.get("/download-overlap")
+def download_overlap():
+    if not os.path.exists(OVERLAP_OUTPUT_FILE):
+        return JSONResponse({"error": "overlap_filtered.csv not found"}, status_code=404)
+
+    return FileResponse(
+        OVERLAP_OUTPUT_FILE,
+        media_type="text/csv",
+        filename="overlap_filtered.csv"
+    )
 
 @app.post('/delete/delete_list')
 def delete_delete_list():

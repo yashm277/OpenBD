@@ -3,7 +3,7 @@
 A FastAPI application for processing email data dumps. Now includes three features:
 - **Delete List Generator**: Identify emails to delete based on engagement metrics.
 - **Duplicate Email Finder**: Find duplicate emails across multiple CSVs.
-- **Gmail Lead Analyzer**: Analyze Gmail leads directly from the dashboard.
+- **Overlap Checker**: Analyze Gmail leads directly from the dashboard.
 
 ## **Quick Start - How to Run**
 ### **1. Install Required Packages**
@@ -29,7 +29,7 @@ uvicorn app:app --reload
 - The app now supports three tools from the homepage:
    - **Delete List Generator**: Upload CSVs with Email/Opens columns to generate `delete_list.csv` (emails in 3+ dumps with 0 opens).
    - **Duplicate Email Finder**: Upload CSVs with email/name/company columns to generate `duplicate_emails.csv` (all duplicate emails, grouped).
-   - **Gmail Lead Analyzer**: Direct link to analyze Gmail leads: [Gmail Lead Analyzer](https://riseglobaleducation.com/).
+   - **Overlap Checker**: CSV Overlap Checker that removes emails from one CSV if they already exist in another CSV.
 
 ---
 
@@ -45,6 +45,7 @@ pip install -r requirements.txt
 mkdir static
 move app.html static\
 move homepage.html static\
+move overlap.html static\
 ```
 
 3. Start the server:
@@ -56,7 +57,7 @@ uvicorn app:app --reload
    - Dashboard: http://localhost:8000/ (choose a tool)
    - Delete List Generator: http://localhost:8000/app
    - Duplicate Email Finder: http://localhost:8000/static/duplicate.html
-   - Gmail Lead Analyzer: [https://riseglobaleducation.com/](https://riseglobaleducation.com/)
+   - Overlap Checker: http://localhost:8000/static/overlap.html
    - API docs (optional): http://localhost:8000/docs
 
 ---
@@ -80,8 +81,7 @@ uvicorn app:app --reload
    - `common_company.csv` (all duplicate companies, grouped by company)
    - `common_fullname.csv` (all duplicate full names, grouped by full name)
 
-### Gmail Lead Analyzer
-- Direct link to analyze Gmail leads: [Gmail Lead Analyzer](https://riseglobaleducation.com/)
+### Overlap Checker
 
 ---
 
