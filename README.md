@@ -3,7 +3,7 @@
 A FastAPI application for processing email data dumps. Now includes three features:
 - **Delete List Generator**: Identify emails to delete based on engagement metrics.
 - **Duplicate Email Finder**: Find duplicate emails across multiple CSVs.
-- **Overlap Checker**: Analyze Gmail leads directly from the dashboard.
+- **Overlap Checker**: CSV Overlap Checker that removes emails from one CSV if they already exist in another CSV.
 
 ## **Quick Start - How to Run**
 ### **1. Install Required Packages**
