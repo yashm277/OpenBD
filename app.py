@@ -219,8 +219,6 @@ UPLOAD_FOLDER = "uploads"
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # Serve static frontend files from /static
-if not os.path.exists("static"):
-    os.makedirs("static", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 def process_multiple_dumps(file_paths: List[str]):
