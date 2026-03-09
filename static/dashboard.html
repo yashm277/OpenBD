@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>RISE Research – BD Tools</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;700;900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary: #1C7C54;
+  --primary-dark: #155c3f;
+  --secondary: #83684F;
+  --bg: #FBF8EF;
+  --card-bg: #FFFFFF;
+  --border: #e6e2d8;
+  --text: #000000;
+  --text-secondary: #555555;
+  --success: #1C7C54;
+  --warning: #c48a2c;
+  --error: #c0392b;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  font-family:'Red Hat Display',sans-serif;
+  background:var(--beige);
+  color:var(--black);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+.header{
+  background:var(--primary);
+  padding:40px 20px;
+  text-align:center;
+}
+
+.header img{
+  height:60px;
+  margin-bottom:20px;
+}
+
+.header h1{
+  color:#fff;
+  font-size:2.8rem;
+  font-weight:900;
+}
+
+.header p{
+  color:#e5f4ed;
+  font-weight:500;
+  margin-top:8px;
+}
+
+.container{
+  flex:1;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:40px 20px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:30px;
+  width:100%;
+  max-width:900px;
+}
+
+.card{
+  background:#fff;
+  border-radius:14px;
+  padding:40px 30px;
+  text-align:center;
+  box-shadow:0 6px 18px rgba(0,0,0,0.05);
+  transition:all .2s ease;
+}
+
+.card:hover{
+  transform:translateY(-5px);
+  box-shadow:0 12px 30px rgba(0,0,0,0.08);
+}
+
+.card h2{
+  font-size:1.4rem;
+  margin-bottom:16px;
+  font-weight:700;
+}
+
+.card a{
+  display:inline-block;
+  margin-top:12px;
+  padding:12px 24px;
+  background:var(--primary);
+  color:#fff;
+  text-decoration:none;
+  border-radius:8px;
+  font-weight:700;
+  transition:.2s;
+}
+
+.card a:hover{
+  background:#155c3f;
+}
+
+.footer{
+  text-align:center;
+  padding:20px;
+  font-size:0.9rem;
+  color:#666;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <img src="/static/RISE-Logo.jpeg" alt="RISE Logo">
+  <h1>RISE Research</h1>
+  <p>Internal Data Management Tools</p>
+</div>
+
+<div class="container">
+  <div class="grid">
+
+    <div class="card">
+      <h2>Duplicate Email Finder</h2>
+      <p>Identify duplicate emails across multiple CSV files.</p>
+      <a href="/static/duplicate.html">Open Tool</a>
+    </div>
+
+    <div class="card">
+      <h2>Delete List Generator</h2>
+      <p>Generate deletion list from inactive data dumps.</p>
+      <a href="/app">Open Tool</a>
+    </div>
+
+    <div class="card">
+      <h2>Gmail Lead Analyzer</h2>
+      <p>Advanced lead analysis platform.</p>
+      <a href="https://riseglobaleducation.com/" target="_blank">Open Platform</a>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">
+© 2026 RISE Research
+</div>
+
+</body>
+</html>

@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>CSV Manager - RISE</title>
+    <title>Duplicate Email Finder - RISE</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;700;900&display=swap" rel="stylesheet">
@@ -22,13 +22,7 @@
   --warning: #c48a2c;
   --error: #c0392b;
 }
-      
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      
+      * { margin: 0; padding: 0; box-sizing: border-box; }
       body { 
   font-family: 'Red Hat Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; 
   background: var(--bg); 
@@ -39,94 +33,17 @@
   -webkit-font-smoothing: antialiased; 
   -moz-osx-font-smoothing: grayscale; 
 }
-      
-      .container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 40px 24px;
-      }
-      
-      h1 { 
-        font-family: 'Lato', sans-serif;
-        font-size: 2.5rem;
-        font-weight: 900;
-        color: var(--text);
-        margin-bottom: 8px;
-      }
-      
-      .subtitle {
-        color: var(--text-secondary);
-        font-size: 1.125rem;
-        margin-bottom: 40px;
-        font-weight: 400;
-      }
-      
-      .card { 
-        background: var(--card-bg);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 32px;
-        margin-bottom: 24px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-      }
-      
-      h2 {
-        font-size: 1.5rem;
-        margin-bottom: 24px;
-        color: var(--text);
-        font-weight: 700;
-      }
-      
-      .upload-zone {
-        border: 3px dashed var(--border);
-        border-radius: 12px;
-        padding: 48px 24px;
-        text-align: center;
-        background: #fafbfc;
-        cursor: pointer;
-        position: relative;
-        margin-bottom: 24px;
-        min-height: 180px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        transition: all 0.2s ease;
-      }
-      
-      .upload-zone:hover {
-        border-color: var(--primary);
-        background: #f0fdf8;
-      }
-      
-      .upload-icon {
-        font-size: 3.5rem;
-        margin-bottom: 16px;
-        display: block;
-      }
-      
-      .upload-text {
-        font-size: 1.125rem;
-        font-weight: 700;
-        color: var(--text);
-        margin-bottom: 8px;
-      }
-      
-      .file-info {
-        color: var(--text-secondary);
-        font-size: 0.95rem;
-      }
-      
-      input[type=file] { 
-        opacity: 0;
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        cursor: pointer;
-      }
-      
+      .container { max-width: 800px; margin: 0 auto; padding: 40px 24px; }
+      h1 { font-family: 'Lato', sans-serif; font-size: 2.5rem; font-weight: 900; color: var(--text); margin-bottom: 8px; }
+      .subtitle { color: var(--text-secondary); font-size: 1.125rem; margin-bottom: 40px; font-weight: 400; }
+      .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 32px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04); }
+      h2 { font-size: 1.5rem; margin-bottom: 24px; color: var(--text); font-weight: 700; }
+      .upload-zone { border: 3px dashed var(--border); border-radius: 12px; padding: 48px 24px; text-align: center; background: #fafbfc; cursor: pointer; position: relative; margin-bottom: 24px; min-height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: all 0.2s ease; }
+      .upload-zone:hover { border-color: var(--primary); background: #f0fdf8; }
+      .upload-icon { font-size: 3.5rem; margin-bottom: 16px; display: block; }
+      .upload-text { font-size: 1.125rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+      .file-info { color: var(--text-secondary); font-size: 0.95rem; }
+      input[type=file] { opacity: 0; position: absolute; width: 100%; height: 100%; top: 0; left: 0; cursor: pointer; }
       .button-group {
   display: flex;
   gap: 16px;
@@ -176,114 +93,25 @@ button:active,
   transform: translateY(0);
   box-shadow: 0 4px 10px rgba(28, 124, 84, 0.25);
 }
-      
-      @media (hover: none) and (pointer: coarse) {
-        button:hover, .btn:hover {
-          transform: none;
-        }
-      }
-      
-      button:active, .btn:active {
-        transform: translateY(0);
-      }
-      
-      #progress { 
-        width: 100%;
-        height: 10px;
-        background: #e3e5e8;
-        border-radius: 10px;
-        overflow: hidden;
-        margin-top: 16px;
-        display: none;
-      }
-      
-      #progress > div { 
-        height: 100%;
-        width: 0;
-        background: var(--primary);
-        transition: width 0.3s ease;
-        border-radius: 10px;
-      }
-      
-      #statusText {
-        margin-top: 16px;
-        color: var(--text-secondary);
-        font-weight: 600;
-        font-size: 1rem;
-        text-align: center;
-        display: none;
-      }
-      
-      #statusText.show {
-        display: block;
-      }
-      
-      #statusText.success {
-        color: var(--success);
-      }
-      
-      #statusText.warning {
-        color: var(--warning);
-      }
-      
-      #statusText.error {
-        color: var(--error);
-      }
-      
-      .file-selected {
-        background: #e3fcf4;
-        padding: 12px 16px;
-        border-radius: 8px;
-        margin-top: 16px;
-        color: var(--primary-dark);
-        font-weight: 600;
-        display: inline-block;
-      }
-
-      .info-box {
-        background: #f0f9ff;
-        border-left: 4px solid var(--secondary);
-        padding: 16px;
-        border-radius: 8px;
-        margin-bottom: 24px;
-      }
-
-      .info-box p {
-        margin: 0;
-        color: var(--text-secondary);
-        font-size: 0.95rem;
-        line-height: 1.5;
-      }
-      
-      @media (max-width: 768px) {
-        h1 { 
-          font-size: 2rem; 
-        }
-        .card { 
-          padding: 24px; 
-        }
-        .button-group { 
-          flex-direction: column; 
-        }
-        button, .btn { 
-          width: 100%; 
-        }
-      }
-      
-      @media (max-width: 480px) {
-        .container {
-          padding: 20px 16px;
-        }
-        h1 {
-          font-size: 1.75rem;
-        }
-        .subtitle {
-          font-size: 1rem;
-        }
-        .card {
-          padding: 20px;
-        }
-      }
+      #progress { width: 100%; height: 10px; background: #e3e5e8; border-radius: 10px; overflow: hidden; margin-top: 16px; display: none; }
+      #progress > div { height: 100%; width: 0; background: var(--primary); transition: width 0.3s ease; border-radius: 10px; }
+      #statusText { margin-top: 16px; color: var(--text-secondary); font-weight: 600; font-size: 1rem; text-align: center; display: none; }
+      #statusText.show { display: block; }
+      #statusText.success { color: var(--success); }
+      #statusText.warning { color: var(--warning); }
+      #statusText.error { color: var(--error); }
+      .file-selected { background: #e3fcf4; padding: 12px 16px; border-radius: 8px; margin-top: 16px; color: var(--primary-dark); font-weight: 600; display: inline-block; }
+      .info-box { background: #f0f9ff; border-left: 4px solid var(--secondary); padding: 16px; border-radius: 8px; margin-bottom: 24px; }
+      .info-box p { margin: 0; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5; }
+@media (max-width: 768px) { 
+  h1 { font-size: 2rem; }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+  }
+}
     </style>
   </head>
   <body>
@@ -292,22 +120,28 @@ button:active,
         <img src="https://static.thenounproject.com/png/104062-200.png" alt="RISE Research Logo" style="height: 48px;">
         <div>
           <h1 style="font-size: 2.5rem; font-weight: 900; color: var(--primary); margin: 0;">RISE Research</h1>
-          <div style="color: var(--text-secondary); font-size: 1.1rem; font-weight: 700;">Delete List Generator</div>
+          <div style="color: var(--text-secondary); font-size: 1.1rem; font-weight: 700;">Duplicate Email Finder</div>
         </div>
       </div>
       <a href="/" style="display: inline-block; margin-bottom: 24px; text-decoration: none;">
         <button class="btn btn-secondary" style="background: var(--secondary); color: #fff; font-weight: 700; border-radius: 6px; padding: 10px 28px; font-size: 1rem;">← Back to Dashboard</button>
       </a>
-      
       <div class="card" style="margin-bottom: 32px;">
         <h2 style="color: var(--primary);">How It Works</h2>
         <div class="info-box">
-          <p>Upload your CSV data dumps (must contain <strong>Email</strong> and <strong>Opens</strong> columns). The tool will identify emails that appear in <strong>3 or more dumps with 0 total opens</strong> and generate a delete list.</p>
+          <p>Upload one or more CSV files (must contain an <strong>email</strong> column). The tool will find duplicate emails, company names, or full names across all files, group them, and let you download a report.</p>
         </div>
       </div>
-
       <div class="card">
         <h2>Upload CSV Files</h2>
+        <div style="margin-bottom: 16px;">
+          <label for="duplicateType" style="font-weight: 700; color: var(--text-secondary); margin-right: 8px;">Check duplicates by:</label>
+          <select id="duplicateType" style="padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); font-size: 1rem;">
+            <option value="email">Email</option>
+            <option value="company">Company Name</option>
+            <option value="fullname">Full Name</option>
+          </select>
+        </div>
         <div class="upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Upload CSV files">
           <span class="upload-icon" aria-hidden="true">📂</span>
           <input id="files" type="file" multiple accept=".csv" aria-label="Choose CSV files to upload" />
@@ -315,26 +149,22 @@ button:active,
           <div class="file-info">or click to browse your computer</div>
           <div id="fileNames"></div>
         </div>
-        
         <div class="button-group">
-          <button id="uploadBtn">📤 Upload & Process</button>
+          <button id="uploadBtn">📤 Upload & Find Duplicates</button>
         </div>
-        
         <div id="progress"><div></div></div>
         <div id="statusText"></div>
       </div>
-
       <div class="card">
-        <h2>Download Delete List</h2>
-        <p style="color: #626569; margin-bottom: 24px;">Download the list of emails to delete</p>
+        <h2>Download Duplicates Report</h2>
+        <p style="color: #254672; margin-bottom: 24px;">Download the list of duplicate emails</p>
         <div class="button-group">
-          <a id="downloadDeleteList" href="/download" download style="text-decoration: none;">
-            <button class="btn">📥 Download Delete List</button>
+          <a id="downloadDuplicates" href="#" download style="text-decoration: none; display: none;">
+            <button class="btn">📥 Download Duplicates</button>
           </a>
         </div>
       </div>
     </div>
-
     <script>
       const filesInput = document.getElementById('files')
       const uploadBtn = document.getElementById('uploadBtn')
@@ -343,7 +173,7 @@ button:active,
       const statusText = document.getElementById('statusText')
       const uploadZone = document.getElementById('uploadZone')
       const fileNamesEl = document.getElementById('fileNames')
-
+      const downloadLink = document.getElementById('downloadDuplicates')
       // File selection display
       filesInput.onchange = () => {
         const files = filesInput.files
@@ -354,19 +184,16 @@ button:active,
           fileNamesEl.innerHTML = ''
         }
       }
-
       // Drag and drop
       uploadZone.ondragover = (e) => {
         e.preventDefault()
         uploadZone.style.borderColor = 'var(--primary)'
         uploadZone.style.background = '#f0fdf8'
       }
-      
       uploadZone.ondragleave = () => {
         uploadZone.style.borderColor = 'var(--border)'
         uploadZone.style.background = '#fafbfc'
       }
-      
       uploadZone.ondrop = (e) => {
         e.preventDefault()
         uploadZone.style.borderColor = 'var(--border)'
@@ -374,7 +201,6 @@ button:active,
         filesInput.files = e.dataTransfer.files
         filesInput.onchange()
       }
-
       // Keyboard support
       uploadZone.onkeydown = (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -382,22 +208,21 @@ button:active,
           filesInput.click()
         }
       }
-
       // Upload files
       uploadBtn.onclick = () => {
         const files = filesInput.files
+        const duplicateType = document.getElementById('duplicateType').value
         if (!files || files.length === 0) {
           showStatus('Please select at least one CSV file', 'warning')
           return
         }
-
         const form = new FormData()
         for (let i=0; i<files.length; i++) form.append('files', files[i])
-
+        form.append('duplicate_type', duplicateType)
         progress.style.display = 'block'
         statusText.classList.add('show')
         const xhr = new XMLHttpRequest()
-        xhr.open('POST', '/upload')
+        xhr.open('POST', '/duplicate-email-finder')
         xhr.upload.onprogress = (e) => {
           if (e.lengthComputable) {
             const pct = Math.round((e.loaded / e.total) * 100)
@@ -410,11 +235,13 @@ button:active,
           progressBar.style.width = '100%'
           if (xhr.status === 200) {
             const response = JSON.parse(xhr.responseText)
-            showStatus(`✓ Processing complete! ${response.deleted_count} emails flagged for deletion`, 'success')
+            showStatus('✓ Processing complete! Download your duplicates report below.', 'success')
+            downloadLink.href = response.download_url
+            downloadLink.style.display = 'inline-block'
           } else {
             showStatus('✗ Processing failed', 'error')
+            downloadLink.style.display = 'none'
           }
-          
           setTimeout(() => {
             progress.style.display = 'none'
             progressBar.style.width = '0'
@@ -425,7 +252,6 @@ button:active,
         }
         xhr.send(form)
       }
-
       function showStatus(message, className) {
         statusText.className = 'show ' + className
         statusText.innerText = message
