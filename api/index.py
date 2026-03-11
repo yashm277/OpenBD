@@ -328,8 +328,10 @@ async def overlap_checker(
     if col_err2:
         return JSONResponse({"error": col_err2}, status_code=400)
 
-    emails1 = set(df1["email"].astype(str).str.strip().str.lower())
-    emails2 = set(df2["email"].astype(str).str.strip().str.lower())
+    emails1_series = df1["email"].astype(str).str.strip().str.lower()
+    emails2_series = df2["email"].astype(str).str.strip().str.lower()
+    emails1 = set(e for e in emails1_series if e)
+    emails2 = set(e for e in emails2_series if e)
 
     remaining = sorted(emails1 - emails2)
     overlap_count = len(emails1 & emails2)
