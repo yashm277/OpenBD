@@ -8,19 +8,39 @@ from fastapi.responses import JSONResponse
 app = FastAPI(title="RISE Research API")
 
 
+def _check_columns(filename: str, df: pd.DataFrame, required: list[str]) -> str | None:
+    """Return a human-readable error if any required columns are missing."""
+    found = [str(c).strip().lower() for c in df.columns]
+    missing = [c for c in required if c not in found]
+    if not missing:
+        return None
+    found_display = ", ".join(f"'{c}'" for c in found[:10]) or "(none detected)"
+    missing_display = ", ".join(f"'{c}'" for c in missing)
+    return (
+        f"'{filename}' is missing required column(s): {missing_display}. "
+        f"Columns detected in your file: {found_display}."
+    )
+
+
 async def parse_upload(file: UploadFile) -> pd.DataFrame:
     """Read an uploaded CSV or XLSX file into a DataFrame."""
     content = await file.read()
+    if not content:
+        raise ValueError(f"'{file.filename}' is empty.")
     ext = os.path.splitext(file.filename or "")[1].lower()
     try:
         if ext in (".xlsx", ".xls"):
             df = pd.read_excel(io.BytesIO(content))
         else:
             df = _read_csv_smart(content)
+        if df.empty:
+            raise ValueError(f"'{file.filename}' contains no data rows.")
         # Replace NaN with empty string so JSON never contains bare `NaN`
         return df.where(df.notna(), other="")
+    except ValueError:
+        raise
     except Exception as e:
-        raise ValueError(f"Cannot read '{file.filename}': {e}")
+        raise ValueError(f"Could not read '{file.filename}': {e}")
 
 
 def _read_csv_smart(content: bytes) -> pd.DataFrame:
@@ -106,11 +126,9 @@ async def upload_csv(files: List[UploadFile] = File(...)):
             return JSONResponse({"error": str(e)}, status_code=400)
 
         df.columns = [str(c).strip().lower() for c in df.columns]
-        if "email" not in df.columns or "opens" not in df.columns:
-            return JSONResponse(
-                {"error": f"'{file.filename}' must contain 'email' and 'opens' columns."},
-                status_code=400,
-            )
+        col_err = _check_columns(file.filename or "", df, ["email", "opens"])
+        if col_err:
+            return JSONResponse({"error": col_err}, status_code=400)
 
         df = df[["email", "opens"]].copy()
         df.columns = ["email", "open"]
@@ -177,7 +195,12 @@ async def duplicate_email_finder(
             return JSONResponse({"error": str(e)}, status_code=400)
 
         df.columns = [str(c).strip().lower() for c in df.columns]
-        for col in ("email", "first_name", "last_name", "company"):
+
+        col_err = _check_columns(file.filename or "", df, ["email"])
+        if col_err:
+            return JSONResponse({"error": col_err}, status_code=400)
+
+        for col in ("first_name", "last_name", "company"):
             if col not in df.columns:
                 df[col] = ""
         for col in ("email", "first_name", "last_name", "company"):
@@ -298,10 +321,12 @@ async def overlap_checker(
     df1.columns = [str(c).strip().lower() for c in df1.columns]
     df2.columns = [str(c).strip().lower() for c in df2.columns]
 
-    if "email" not in df1.columns:
-        return JSONResponse({"error": "File 1 must contain an 'email' column."}, status_code=400)
-    if "email" not in df2.columns:
-        return JSONResponse({"error": "File 2 must contain an 'email' column."}, status_code=400)
+    col_err1 = _check_columns(file1.filename or "CSV 1", df1, ["email"])
+    if col_err1:
+        return JSONResponse({"error": col_err1}, status_code=400)
+    col_err2 = _check_columns(file2.filename or "CSV 2", df2, ["email"])
+    if col_err2:
+        return JSONResponse({"error": col_err2}, status_code=400)
 
     emails1 = set(df1["email"].astype(str).str.strip().str.lower())
     emails2 = set(df2["email"].astype(str).str.strip().str.lower())
