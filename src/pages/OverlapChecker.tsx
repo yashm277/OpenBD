@@ -67,7 +67,7 @@ export default function OverlapChecker() {
 
       {/* Step indicator */}
       <div className="steps">
-        <div className={`step ${file1 || file2 ? 'done' : 'active'}`}>
+        <div className={`step ${file1 && file2 ? 'done' : 'active'}`}>
           <div className="step-num">1</div>
           <div className="step-label">Upload CSVs</div>
         </div>
