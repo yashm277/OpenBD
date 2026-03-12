@@ -71,12 +71,12 @@ export default function OverlapChecker() {
           <div className="step-num">1</div>
           <div className="step-label">Upload CSVs</div>
         </div>
-        <div className="step-line" />
+        <div className="step-connector" />
         <div className={`step ${loading ? 'active' : result ? 'done' : ''}`}>
           <div className="step-num">2</div>
           <div className="step-label">Process</div>
         </div>
-        <div className="step-line" />
+        <div className="step-connector" />
         <div className={`step ${result ? 'active' : ''}`}>
           <div className="step-num">3</div>
           <div className="step-label">Download</div>
