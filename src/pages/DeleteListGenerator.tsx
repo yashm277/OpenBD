@@ -103,7 +103,7 @@ export default function DeleteListGenerator() {
         <UploadZone
           multiple
           label="Drop your CSV dump files here"
-          onFiles={fs => { setFiles(fs); setStatus(null); if (step === 3) setStep(1) }}
+          onFiles={fs => { setFiles(fs); setStatus(null); setResult(null); if (step === 3) setStep(1) }}
         />
 
         <div className="btn-group">
